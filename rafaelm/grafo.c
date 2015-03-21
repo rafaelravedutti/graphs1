@@ -194,7 +194,39 @@ grafo le_grafo(FILE *input) {
 //         0 em caso de erro
 
 int destroi_grafo(grafo g) {
+  if(g != NULL) {
+    if(g->grafo_nome != NULL) {
+      free(g->grafo_nome);
+    }
 
+    if(g->grafo_vertices != NULL) {
+      struct vertice *v, *proximo;
+
+      v = g->grafo_vertices;
+
+      while(v != NULL) {
+        proximo = v->vertice_proximo;
+        free(v);
+
+        v = proximo;
+      }
+    }
+
+    if(g->grafo_arestas != NULL) {
+      struct aresta *a, *proximo;
+
+      a = g->grafo_arestas;
+
+      while(a != NULL) {
+        proximo = a->aresta_proximo;
+        free(a);
+
+        a = proximo;
+      }
+    }
+  }
+
+  return 1;
 }
 //------------------------------------------------------------------------------
 // escreve o grafo g em output usando o formato dot, de forma que
