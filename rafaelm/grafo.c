@@ -45,7 +45,7 @@ struct aresta {
 };
 
 //------------------------------------------------------------------------------
-// Encontra um vertice a partir do seu nome
+// encontra um vertice a partir do seu nome
 
 struct vertice *encontra_vertice(struct vertice *vertices, const char *nome) {
   struct vertice *v;
@@ -60,7 +60,7 @@ struct vertice *encontra_vertice(struct vertice *vertices, const char *nome) {
 }
 
 //------------------------------------------------------------------------------
-// Encontra uma aresta dados seus vertices em uma lista de arestas
+// encontra uma aresta dados seus vertices em uma lista de arestas
 
 struct aresta *encontra_aresta(struct aresta *arestas, int tamanho, struct vertice *cauda, struct vertice *cabeca) {
   struct aresta *a;
@@ -76,7 +76,7 @@ struct aresta *encontra_aresta(struct aresta *arestas, int tamanho, struct verti
 }
 
 //------------------------------------------------------------------------------
-// Carrega os vertices de um grafo do tipo Agraph_t para um grafo do tipo
+// carrega os vertices de um grafo do tipo Agraph_t para um grafo do tipo
 // da estrutura implementada
 
 struct vertice *obter_vertices(Agraph_t *grafo) {
@@ -101,7 +101,7 @@ struct vertice *obter_vertices(Agraph_t *grafo) {
 }
 
 //------------------------------------------------------------------------------
-// Carrega as arestas de um grafo do tipo Agraph_t para um grafo do tipo
+// carrega as arestas de um grafo do tipo Agraph_t para um grafo do tipo
 // da estrutura implementada
 
 struct aresta *obter_arestas(Agraph_t *grafo, struct vertice *lista_vertices) {
@@ -170,23 +170,26 @@ grafo le_grafo(FILE *input) {
     }
 
     if((grafo_lido->grafo_vertices = obter_vertices(g)) == NULL) {
-      free(g);
+      agclose(g);
       destroi_grafo(grafo_lido);
       return NULL;
     }
 
     if((grafo_lido->grafo_arestas = obter_arestas(g, grafo_lido->grafo_vertices)) == NULL) {
-      free(g);
+      agclose(g);
       destroi_grafo(grafo_lido);
       return NULL;
     }
 
     grafo_lido->grafo_direcionado = agisdirected(g);
     grafo_lido->grafo_nome = strdup(agnameof(g));
+
+    agclose(g);
   }
 
   return grafo_lido;
 }
+
 //------------------------------------------------------------------------------
 // desaloca toda a memória utilizada em g
 //
@@ -228,6 +231,7 @@ int destroi_grafo(grafo g) {
 
   return 1;
 }
+
 //------------------------------------------------------------------------------
 // escreve o grafo g em output usando o formato dot, de forma que
 //
@@ -238,5 +242,37 @@ int destroi_grafo(grafo g) {
 //         NULL em caso de erro
 
 grafo escreve_grafo(FILE *output, grafo g) {
+  char aresta_nome[10], peso[20];
+  Agraph_t *grafo;
+  Agedge_t *aresta;
+  struct vertice *v;
+  struct aresta *a;
+  unsigned int aresta_id = 0;
 
+  grafo = agopen(g->grafo_nome, (g->grafo_direcionado) ? Agdirected : Agundirected, NULL);
+
+  if(grafo == NULL) {
+    return NULL;
+  }
+
+  for(v = g->grafo_vertices; v != NULL; v = v->vertice_proximo) {
+    agnode(grafo, v->vertice_nome, TRUE);
+  }
+
+  for(a = g->grafo_arestas; a != NULL; a = a->aresta_proximo) {
+    sprintf(aresta_nome, "e%d", aresta_id);
+    aresta = agedge(grafo, agnode(grafo, a->aresta_origem->vertice_nome, FALSE),
+                           agnode(grafo, a->aresta_destino->vertice_nome, FALSE), aresta_nome, TRUE);
+
+    if(a->aresta_peso > 0.000000001 || a->aresta_peso < 0.000000001) {
+      sprintf(peso, "%.8f", a->aresta_peso);
+      agset(aresta, "peso", peso);
+    }
+
+    ++aresta_id;
+  }
+
+  agwrite(grafo, output);
+  agclose(grafo);
+  return g;
 }
