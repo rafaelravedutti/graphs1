@@ -203,30 +203,14 @@ int destroi_grafo(grafo g) {
     }
 
     if(g->grafo_vertices != NULL) {
-      struct vertice *v, *proximo;
-
-      v = g->grafo_vertices;
-
-      while(v != NULL) {
-        proximo = v->vertice_proximo;
-        free(v);
-
-        v = proximo;
-      }
+      free(g->grafo_vertices);
     }
 
     if(g->grafo_arestas != NULL) {
-      struct aresta *a, *proximo;
-
-      a = g->grafo_arestas;
-
-      while(a != NULL) {
-        proximo = a->aresta_proximo;
-        free(a);
-
-        a = proximo;
-      }
+      free(g->grafo_arestas);
     }
+
+    free(g);
   }
 
   return 1;
