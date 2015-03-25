@@ -226,37 +226,30 @@ int destroi_grafo(grafo g) {
 //         NULL em caso de erro
 
 grafo escreve_grafo(FILE *output, grafo g) {
-  char aresta_nome[10], peso[20];
-  Agraph_t *grafo;
-  Agedge_t *aresta;
   struct vertice *v;
   struct aresta *a;
-  unsigned int aresta_id = 0;
+  char caractere_aresta;
 
-  grafo = agopen(g->grafo_nome, (g->grafo_direcionado) ? Agdirected : Agundirected, NULL);
-
-  if(grafo == NULL) {
-    return NULL;
-  }
+  fprintf(output, "strict %sgraph \"%s\" {\n\n", (g->grafo_direcionado) ? "di" : "", g->grafo_nome);
 
   for(v = g->grafo_vertices; v != NULL; v = v->vertice_proximo) {
-    agnode(grafo, v->vertice_nome, TRUE);
+    fprintf(output, "    \"%s\"\n", v->vertice_nome);
   }
+
+  fprintf(output, "\n");
+
+  caractere_aresta = (g->grafo_direcionado) ? '>' : '-';
 
   for(a = g->grafo_arestas; a != NULL; a = a->aresta_proximo) {
-    sprintf(aresta_nome, "e%d", aresta_id);
-    aresta = agedge(grafo, agnode(grafo, a->aresta_origem->vertice_nome, FALSE),
-                           agnode(grafo, a->aresta_destino->vertice_nome, FALSE), aresta_nome, TRUE);
+    fprintf(output, "    \"%s\" -%c \"%s\" ", a->aresta_origem->vertice_nome, caractere_aresta, a->aresta_destino->vertice_nome);
 
-    if(a->aresta_peso > 0.000000001 || a->aresta_peso < 0.000000001) {
-      sprintf(peso, "%.8f", a->aresta_peso);
-      agset(aresta, "peso", peso);
+    if(a->aresta_peso > 0.000000001 || a->aresta_peso < -0.000000001) {
+      fprintf(output, "[peso=%.8f]", a->aresta_peso);
     }
 
-    ++aresta_id;
+    fprintf(output, "\n");
   }
 
-  agwrite(grafo, output);
-  agclose(grafo);
+  fprintf(output, "}\n");
   return g;
 }
