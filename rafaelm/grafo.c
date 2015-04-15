@@ -184,13 +184,15 @@ grafo le_grafo(FILE *input) {
   Agraph_t *g;
   struct grafo *grafo_lido;
 
-  /* Inicializa a estrutura do grafo */
+  /* Aloca a estrutura do grafo */
   grafo_lido = (struct grafo *) malloc(sizeof(struct grafo));
-  grafo_lido->grafo_nome = (char *) NULL;
-  grafo_lido->grafo_vertices = (struct vertice *) NULL;
-  grafo_lido->grafo_arestas = (struct aresta *) NULL;
 
   if(grafo_lido != NULL) {
+    /* Inicializa a estrutura do grafo */
+    grafo_lido->grafo_nome = (char *) NULL;
+    grafo_lido->grafo_vertices = (struct vertice *) NULL;
+    grafo_lido->grafo_arestas = (struct aresta *) NULL;
+
     /* Armazena em g o grafo lido da entrada */
     if((g = agread(input, NULL)) == NULL) {
       destroi_grafo(grafo_lido);
