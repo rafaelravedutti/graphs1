@@ -236,6 +236,15 @@ int destroi_grafo(grafo g) {
 
     /* Libera a região de memória ocupada pelos vértices do grafo, se não for nula */
     if(g->grafo_vertices != NULL) {
+      struct vertice *v;
+
+      /* Libera os nomes de todos os vértices */
+      for(v = g->grafo_vertices; v != NULL; v = v->vertice_proximo) {
+        if(v->vertice_nome != NULL) {
+          free(v->vertice_nome);
+        }
+      }
+
       free(g->grafo_vertices);
     }
 
